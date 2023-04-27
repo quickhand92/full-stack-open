@@ -1,64 +1,58 @@
+// @ts-nocheck
 import React from "react";
+import axios from "axios"
+import { useState, useEffect } from 'react'
+import personService from '../src/services/persons'
 
-import { useState } from 'react'
-
-const Persons = ({persons, filter}) => {
+const Persons = ({ persons, filter }) => {
   const filtered = persons.filter((person) => person.name.toLowerCase().includes(filter.toLowerCase()))
-  return(
+  return (
     filtered.map(person => <div key={person.name}>{person.name} {person.number}</div>)
   )
 }
 
-const FilterInput = ({value, onChange}) => <div>
-  filter shown with <input value={value} onChange={onChange}/>
+const FilterInput = ({ value, onChange }) => <div>
+  filter shown with <input value={value} onChange={onChange} />
 </div>
 
-const PersonForm = ({onSubmit,nameValue,nameChange,numberValue,numberChange}) => {
+const PersonForm = ({ onSubmit, nameValue, nameChange, numberValue, numberChange }) => {
   return (
     <form onSubmit={onSubmit}>
-        <div>
-          name: <input value={nameValue} onChange={nameChange} />
-        </div>
-        <div>
-          number: <input value={numberValue} onChange={numberChange} />
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
+      <div>
+        name: <input value={nameValue} onChange={nameChange} />
+      </div>
+      <div>
+        number: <input value={numberValue} onChange={numberChange} />
+      </div>
+      <div>
+        <button type="submit">add</button>
+      </div>
+    </form>
   )
 }
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456'},
-    { name: 'Ada Lovelace', number: '39-44-5323523' },
-    { name: 'Dan Abramov', number: '12-43-234345' },
-    { name: 'Mary Poppendieck', number: '39-23-6423122' }
-  ]) 
+  const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [search, setSearch] = useState('')
 
   const handleSubmit = (event) => {
     event.preventDefault()
-    
     const personObject = {
       name: newName,
       number: newNumber
     }
 
-    if(persons.find(object => object.name.toLowerCase() == personObject.name.toLowerCase())){
+    if (persons.find(object => object.name.toLowerCase() == personObject.name.toLowerCase())) {
       alert(`${personObject.name} is already added to phonebook`)
-      return  
+      return
     }
-
-    if(persons.find(object => object.number == personObject.number)){
+    if (persons.find(object => object.number == personObject.number)) {
       alert(`Number ${personObject.number} is already added to phonebook`)
-      return  
+      return
     }
-
-    setPersons(persons.concat(personObject))
+    personService.add(personObject).then(returnedPerson => setPersons(persons.concat(returnedPerson)))
     setNewName('')
     setNewNumber('')
   }
@@ -71,16 +65,25 @@ const App = () => {
     setNewNumber(event.target.value)
   }
 
-  const handleSearchChange=(event) => {
+  const handleSearchChange = (event) => {
     setSearch(event.target.value)
   }
+
+  useEffect(() => {
+    axios
+      .get('http://localhost:3001/persons')
+      .then((response) => {
+        setPersons(response.data)
+      })
+  }, [])
+
 
   return (
     <div>
       <h2>Phonebook</h2>
-      <FilterInput value={search} onChange={handleSearchChange}/>
+      <FilterInput value={search} onChange={handleSearchChange} />
       <h2>Add a new</h2>
-      <PersonForm onSubmit={handleSubmit} nameValue={newName} nameChange={handleNameChange} numberValue={newNumber} numberChange={handleNumberChange}/>
+      <PersonForm onSubmit={handleSubmit} nameValue={newName} nameChange={handleNameChange} numberValue={newNumber} numberChange={handleNumberChange} />
       <h2>Numbers</h2>
       <Persons persons={persons} filter={search} />
     </div>
