@@ -4,10 +4,11 @@ import axios from "axios"
 import { useState, useEffect } from 'react'
 import personService from '../src/services/persons'
 
-const Persons = ({ persons, filter }) => {
-  const filtered = persons.filter((person) => person.name.toLowerCase().includes(filter.toLowerCase()))
+const Persons = ({ persons, filter, handleDelete }) => {
+  const filteredPersons = persons.filter((person) => person.name.toLowerCase().includes(filter.toLowerCase()))
+
   return (
-    filtered.map(person => <div key={person.name}>{person.name} {person.number}</div>)
+    filteredPersons.map(person => <div key={person.id}>{person.name} {person.number}<button onClick={() => handleDelete(person.id)}>delete</button></div>)
   )
 }
 
@@ -45,7 +46,18 @@ const App = () => {
     }
 
     if (persons.find(object => object.name.toLowerCase() == personObject.name.toLowerCase())) {
-      alert(`${personObject.name} is already added to phonebook`)
+      const confirmed = window.confirm(`${personObject.name} is already added to phonebook, replace the old number with a new one?`)
+      if (confirmed) {
+        const selected = persons.find(person => person.name == personObject.name)
+        personObject.id = selected.id
+        axios.put(`http://localhost:3001/persons/${selected.id}`, personObject)
+          .then((response) => {
+            setPersons([response.data].concat(persons.filter(person => person.id !== selected.id)))
+          })
+      }
+      else {
+        console.log('not updated')
+      }
       return
     }
     if (persons.find(object => object.number == personObject.number)) {
@@ -69,6 +81,17 @@ const App = () => {
     setSearch(event.target.value)
   }
 
+  const handleDelete = (id) => {
+    const selected = persons.find(person => person.id === id)
+    const confirmed = window.confirm(`Delete ${selected.name}`)
+    if (confirmed) {
+      axios.delete(`http://localhost:3001/persons/${id}`)
+        .then(setPersons(persons.filter((person) => person.id != id)))
+    } else {
+      return
+    }
+  }
+
   useEffect(() => {
     axios
       .get('http://localhost:3001/persons')
@@ -85,7 +108,7 @@ const App = () => {
       <h2>Add a new</h2>
       <PersonForm onSubmit={handleSubmit} nameValue={newName} nameChange={handleNameChange} numberValue={newNumber} numberChange={handleNumberChange} />
       <h2>Numbers</h2>
-      <Persons persons={persons} filter={search} />
+      <Persons persons={persons} filter={search} handleDelete={handleDelete} />
     </div>
   )
 }
