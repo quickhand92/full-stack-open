@@ -1,48 +1,27 @@
 import React from "react";
 import { useState } from "react";
 import axios from "axios";
+import { singleCountryData, capitalizeCountries } from "./utils/utils";
 
-const Filter = ({ filtered, allCountry }) => {
-  if (filtered.length == 0) return
+const FilteredCountries = ({ filtered, allCountry }) => {
+  if (filtered == null) return null
+  if (filtered.length === 0) return null
   if (filtered.length > 10) return (<p>'Too many matches, specify another filter'</p>)
-  const capitalizedFiltered = filtered.map(country => {
-    return country.split(" ").map(word => {
-      return word.charAt(0).toUpperCase() + word.slice(1);
-    }).join(" ");
-  });
 
-  if (filtered.length == 1) {
-    const targetCountry = allCountry.find(country => country.name.common.toLowerCase() == filtered[0].toLowerCase())
+  const capitalizedFiltered = capitalizeCountries(filtered)
 
-    const languageArray = []
-    for (const key in targetCountry.languages) {
-      languageArray.push(targetCountry.languages[key])
-    }
+  if (filtered.length == 1) return singleCountryData(filtered, allCountry)
 
-    const languageElements = languageArray.map((language, index) => {
-      return <li key={index}>{language}</li>
-    })
-
-    return (
-      <div>
-        <h1>{targetCountry.name.common}</h1>
-        <p>capital {targetCountry.capital[0]}</p>
-        <p>area {targetCountry.area}</p>
-        <h3>languages:</h3>
-        <ul>{languageElements}</ul>
-        <img src={targetCountry.flags.png} alt={targetCountry.flags.alt} />
-      </div>
-    )
-  }
-
+  // If filtered elements is between 2 and 9, all common names of countries in the filtered array is displayed.
   const filteredElements = capitalizedFiltered.map((country, index) => (<p key={index}>{country}</p>))
   return (<>
     {filteredElements}
   </>)
+
 }
 
 function App() {
-  const [country, setCountry] = useState(null)
+  const [countryInput, setCountryInput] = useState(null)
   const [allCountry, setAllCountry] = useState(null)
   const [filtered, setFiltered] = useState([])
 
@@ -50,8 +29,8 @@ function App() {
     axios.get('https://restcountries.com/v3.1/all').then(response => setAllCountry(response.data))
   }
 
-  const handleCountry = (event) => {
-    setCountry(event.target.value)
+  const handleCountryFilter = (event) => {
+    setCountryInput(event.target.value)
     const allCountryNameArray = allCountry.map(country => country.name.common.toLowerCase())
     const filteredCountries = allCountryNameArray.filter(country => country.includes(event.target.value.toLowerCase()))
     setFiltered(filteredCountries)
@@ -59,8 +38,8 @@ function App() {
 
   return (
     <div>
-      find countries<input onChange={handleCountry}></input>
-      <Filter filtered={filtered} allCountry={allCountry} />
+      find countries<input onChange={handleCountryFilter}></input>
+      <FilteredCountries filtered={filtered} allCountry={allCountry} />
     </div>
   );
 }
