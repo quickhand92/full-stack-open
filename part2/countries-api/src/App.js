@@ -3,7 +3,9 @@ import { useState } from "react";
 import axios from "axios";
 import { singleCountryData, capitalizeCountries } from "./utils/utils";
 
-const FilteredCountries = ({ filtered, allCountry }) => {
+const api_key = process.env.REACT_APP_API_KEY
+
+const FilteredCountries = ({ filtered, allCountry, showCountry }) => {
   if (filtered == null) return null
   if (filtered.length === 0) return null
   if (filtered.length > 10) return (<p>'Too many matches, specify another filter'</p>)
@@ -13,7 +15,7 @@ const FilteredCountries = ({ filtered, allCountry }) => {
   if (filtered.length == 1) return singleCountryData(filtered, allCountry)
 
   // If filtered elements is between 2 and 9, all common names of countries in the filtered array is displayed.
-  const filteredElements = capitalizedFiltered.map((country, index) => (<p key={index}>{country}</p>))
+  const filteredElements = capitalizedFiltered.map((country, index) => (<p key={index}>{country}<button onClick={() => showCountry(country)}>show</button></p>))
   return (<>
     {filteredElements}
   </>)
@@ -36,10 +38,13 @@ function App() {
     setFiltered(filteredCountries)
   }
 
+  const showCountry = (country) => {
+    setFiltered([country])
+  }
   return (
     <div>
       find countries<input onChange={handleCountryFilter}></input>
-      <FilteredCountries filtered={filtered} allCountry={allCountry} />
+      <FilteredCountries showCountry={showCountry} filtered={filtered} allCountry={allCountry} />
     </div>
   );
 }

@@ -1,5 +1,9 @@
 // @ts-nocheck
 import React from "react"
+import axios from 'axios'
+
+const api_key = process.env.REACT_APP_API_KEY
+const URL = `https://api.openweathermap.org/data/2.5/weather?q=${cityname}&appid=${api_key}`
 
 const singleCountryData = (filtered, allCountry) => {
     const targetCountry = allCountry.find(country => country.name.common.toLowerCase() == filtered[0].toLowerCase())
@@ -12,6 +16,10 @@ const singleCountryData = (filtered, allCountry) => {
     const languageElements = languageArray.map((language, index) => {
         return <li key={index}>{language}</li>
     })
+
+    axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${targetCountry.capital}&appid=${api_key}`).then(response => console.log(response))
+
+
 
     return (
         <div>
