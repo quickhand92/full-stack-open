@@ -32,11 +32,31 @@ const PersonForm = ({ onSubmit, nameValue, nameChange, numberValue, numberChange
   )
 }
 
+const Notification = ({ successMessage, errorMessage }) => {
+  if (successMessage == null && errorMessage == null) {
+    return
+  }
+
+  if (successMessage) {
+    return (
+      <p className="success">{successMessage}</p>
+    )
+  }
+
+  if (errorMessage) {
+    return (
+      <p className="error">{errorMessage}</p>
+    )
+  }
+}
+
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [search, setSearch] = useState('')
+  const [successMessage, setSuccessMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
 
   const handleSubmit = (event) => {
     event.preventDefault()
@@ -53,6 +73,11 @@ const App = () => {
         axios.put(`http://localhost:3001/persons/${selected.id}`, personObject)
           .then((response) => {
             setPersons([response.data].concat(persons.filter(person => person.id !== selected.id)))
+          }).catch((error) => {
+            setErrorMessage(`Information of ${personObject.name} has already been removed from server`)
+            setTimeout(() => {
+              setErrorMessage(null)
+            }, 5000)
           })
       }
       else {
@@ -65,6 +90,11 @@ const App = () => {
       return
     }
     personService.add(personObject).then(returnedPerson => setPersons(persons.concat(returnedPerson)))
+      .then(
+        setSuccessMessage(`Added ${personObject.name}`))
+      .then(setTimeout(() => {
+        setSuccessMessage(null)
+      }, 5000))
     setNewName('')
     setNewNumber('')
   }
@@ -104,6 +134,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification successMessage={successMessage} errorMessage={errorMessage} />
       <FilterInput value={search} onChange={handleSearchChange} />
       <h2>Add a new</h2>
       <PersonForm onSubmit={handleSubmit} nameValue={newName} nameChange={handleNameChange} numberValue={newNumber} numberChange={handleNumberChange} />
