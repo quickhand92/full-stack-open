@@ -2,7 +2,7 @@
 import React from "react"
 
 
-const api_key = process.env.REACT_APP_API_KEY
+
 
 const convertKelvinToCelcius = (kelvin) => {
     const celsius = kelvin - 273.15;
