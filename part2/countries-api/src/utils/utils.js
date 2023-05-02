@@ -1,9 +1,13 @@
 // @ts-nocheck
 import React from "react"
-import axios from 'axios'
+
 
 const api_key = process.env.REACT_APP_API_KEY
-const URL = `https://api.openweathermap.org/data/2.5/weather?q=${cityname}&appid=${api_key}`
+
+const convertKelvinToCelcius = (kelvin) => {
+    const celsius = kelvin - 273.15;
+    return celsius;
+}
 
 const singleCountryData = (filtered, allCountry) => {
     const targetCountry = allCountry.find(country => country.name.common.toLowerCase() == filtered[0].toLowerCase())
@@ -16,11 +20,6 @@ const singleCountryData = (filtered, allCountry) => {
     const languageElements = languageArray.map((language, index) => {
         return <li key={index}>{language}</li>
     })
-
-    axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${targetCountry.capital}&appid=${api_key}`).then(response => console.log(response))
-
-
-
     return (
         <div>
             <h1>{targetCountry.name.common}</h1>
@@ -29,6 +28,7 @@ const singleCountryData = (filtered, allCountry) => {
             <h3>languages:</h3>
             <ul>{languageElements}</ul>
             <img src={targetCountry.flags.png} alt={targetCountry.flags.alt} />
+            <h1>Weather in {targetCountry.capital[0]}</h1>
         </div>
     )
 }
@@ -42,5 +42,5 @@ const capitalizeCountries = (filtered) => {
 
     return capitalizedFiltered
 }
-export { singleCountryData, capitalizeCountries }
+export { singleCountryData, capitalizeCountries, convertKelvinToCelcius }
 
