@@ -1,13 +1,27 @@
 // @ts-nocheck
-const express = require('express')
-const app = express()
+const express = require('express')  //initializes express into a constant
+const app = express() //initializes express app in a constant
 
-app.use(express.json())
+const morgan = require('morgan')
+const logger = morgan(function (tokens, req, res) {
+    return [
+        tokens.method(req, res),
+        tokens.url(req, res),
+        tokens.status(req, res),
+        tokens.res(req, res, 'content-length'), '-',
+        tokens['response-time'](req, res), 'ms',
+        JSON.stringify(req.body)
+    ].join(' ')
+})
+
+app.use(express.json()) //Enables express to accept JSON requests (JSON middleware). Parses raw data into body property of request object.
+app.use(logger)
 
 const PORT = 3001
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
+//Set up the express server app to listen on port 3001
 
 
 let persons = [
@@ -37,13 +51,19 @@ app.get('/', (request, response) => {
     response.send('Main Page')
 })
 
+//set up a get route for homepage
+
 app.get('/info', (request, response) => {
     response.send(`<div>Phonebook has info for ${persons.length} people<div><div>${new Date}<div>`)
 })
 
+//set up a get route for info page
+
 app.get('/api/persons', (request, response) => {
     response.json(persons)
 })
+
+//set up a get route for all people in phonebook
 
 app.get('/api/persons/:id', (request, response) => {
     const requestedID = Number(request.params.id)
@@ -55,6 +75,8 @@ app.get('/api/persons/:id', (request, response) => {
     }
 })
 
+//set up a get route using params entered into the URL for a person with specific ID
+
 app.delete('/api/persons/:id', (request, response) => {
     const requestedID = Number(request.params.id)
     const requestedPerson = persons.find(person => person.id == requestedID)
@@ -65,6 +87,8 @@ app.delete('/api/persons/:id', (request, response) => {
         response.status(200).send('Successfully deleted')
     }
 })
+
+//set up delete route using params entered into the URL for specific person from phonebook with specific ID
 
 app.post('/api/persons/', (request, response) => {
     const body = request.body
@@ -91,3 +115,5 @@ app.post('/api/persons/', (request, response) => {
         return response.status(200).json(request.body)
     }
 })
+
+//add person object to phonebook
