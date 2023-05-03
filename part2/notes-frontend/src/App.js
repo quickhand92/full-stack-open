@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import React from 'react'
@@ -19,7 +21,7 @@ const Notification = ({ message }) => {
 
 const Footer = () => {
   const footerStyle = {
-    color:'green',
+    color: 'green',
     fontStyle: 'italic',
     fontSize: 16
   }
@@ -74,9 +76,9 @@ const App = (props) => {
     : notes.filter(note => note.important)
 
   const toggleImportanceOf = (id) => {
-    const url= `http://localhost:3001/notes/${id}`
+    const url = `http://localhost:3001/notes/${id}`
     const note = notes.find(n => n.id === id)
-    const changedNote = {...note, important: !note.important}
+    const changedNote = { ...note, important: !note.important }
     noteService
       .update(id, changedNote).then(returnedNote => {
         setNotes(notes.map(note => note.id !== id ? note : returnedNote))
