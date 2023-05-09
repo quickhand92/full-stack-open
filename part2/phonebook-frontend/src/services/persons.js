@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseURL = 'http://localhost:3001/persons'
+const baseURL = '/api/persons'
 
 const add = (personObject) => {
     const request = axios.post(baseURL, personObject)
@@ -8,4 +8,4 @@ const add = (personObject) => {
 }
 
 
-export default { add }
+export default { add, baseURL }

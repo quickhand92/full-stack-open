@@ -70,7 +70,7 @@ const App = () => {
       if (confirmed) {
         const selected = persons.find(person => person.name == personObject.name)
         personObject.id = selected.id
-        axios.put(`http://localhost:3001/persons/${selected.id}`, personObject)
+        axios.put(`/api/persons/${selected.id}`, personObject)
           .then((response) => {
             setPersons([response.data].concat(persons.filter(person => person.id !== selected.id)))
           }).catch((error) => {
@@ -115,7 +115,7 @@ const App = () => {
     const selected = persons.find(person => person.id === id)
     const confirmed = window.confirm(`Delete ${selected.name}`)
     if (confirmed) {
-      axios.delete(`http://localhost:3001/persons/${id}`)
+      axios.delete(`/api/persons/${id}`)
         .then(setPersons(persons.filter((person) => person.id != id)))
     } else {
       return
@@ -124,7 +124,7 @@ const App = () => {
 
   useEffect(() => {
     axios
-      .get('http://localhost:3001/persons')
+      .get(`/api/persons`)
       .then((response) => {
         setPersons(response.data)
       })

@@ -2,6 +2,11 @@
 const express = require('express')  //initializes express into a constant
 const app = express() //initializes express app in a constant
 
+const cors = require('cors')
+app.use(cors())
+
+app.use(express.static('build'))
+
 const morgan = require('morgan')
 const logger = morgan(function (tokens, req, res) {
     return [
@@ -17,7 +22,7 @@ const logger = morgan(function (tokens, req, res) {
 app.use(express.json()) //Enables express to accept JSON requests (JSON middleware). Parses raw data into body property of request object.
 app.use(logger)
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
