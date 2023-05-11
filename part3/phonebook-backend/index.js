@@ -126,11 +126,11 @@ app.post('/api/persons/', (request, response) => {
         })
     }
 
-    if (persons.find(person => person.name == body.name)) {
-        return response.status(409).json({
-            error: 'Name already exists in phonebook'
-        })
-    }
+    // if (persons.find(person => person.name == body.name)) {
+    //     return response.status(409).json({
+    //         error: 'Name already exists in phonebook'
+    //     })
+    // }
     else {
         const person = new Person(
             {
