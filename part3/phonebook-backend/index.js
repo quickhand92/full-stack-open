@@ -20,12 +20,11 @@ const logger = morgan(function (tokens, req, res) {
     ].join(' ')
 })
 const errorHandler = (error, request, response, next) => {
-    console.error(error.message)
-
-    if (error.name === 'CastError') {
+    if (error.name == 'CastError') {
         return response.status(400).send({ error: 'malformatted id' })
+    } else if (error.name == 'ValidationError') {
+        return response.status(400).json({ error: error.message })
     }
-
     next(error)
 }
 
@@ -35,7 +34,7 @@ app.use(logger)
 const PORT = process.env.PORT || 3001
 
 
-app.use(errorHandler)
+
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
@@ -116,34 +115,24 @@ app.delete('/api/persons/:id', (request, response, next) => {
 
 //set up delete route using params entered into the URL for specific person from phonebook with specific ID
 
-app.post('/api/persons/', (request, response) => {
+app.post('/api/persons/', (request, response, next) => {
     const body = request.body
-    const newID = Math.floor((Math.random() * 100000000))
-
     if (!body || !body.number || !body.name) {
         return response.status(400).json({
             error: 'Number or name is missing from request.'
         })
     }
 
-    // if (persons.find(person => person.name == body.name)) {
-    //     return response.status(409).json({
-    //         error: 'Name already exists in phonebook'
-    //     })
-    // }
     else {
         const person = new Person(
             {
-                id: newID,
                 name: body.name,
                 number: body.number
             }
         )
         person.save().then(savedPerson => {
             response.json(savedPerson)
-        })
-        // persons = persons.concat(personObject)
-        // return response.status(200).json(request.body)
+        }).catch(error => { next(error) })
     }
 })
 //add person object to phonebook
@@ -161,3 +150,5 @@ app.put('/api/persons/:id', (request, response, next) => {
         })
         .catch(error => next(error))
 })
+
+app.use(errorHandler)

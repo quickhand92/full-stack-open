@@ -89,12 +89,20 @@ const App = () => {
       alert(`Number ${personObject.number} is already added to phonebook`)
       return
     }
-    personService.add(personObject).then(returnedPerson => setPersons(persons.concat(returnedPerson)))
-      .then(
-        setSuccessMessage(`Added ${personObject.name}`))
-      .then(setTimeout(() => {
-        setSuccessMessage(null)
-      }, 5000))
+    personService.add(personObject).then(
+      returnedPerson => {
+        setPersons(persons.concat(returnedPerson))
+        setSuccessMessage(`Added ${personObject.name}`)
+        setTimeout(() => {
+          setSuccessMessage(null)
+        }, 5000)
+      })
+      .catch(error => {
+        setErrorMessage(error.response.data.error)
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
+      })
     setNewName('')
     setNewNumber('')
   }
