@@ -1,6 +1,6 @@
 // @ts-nocheck
 const Person = require('./models/person')
-const express = require('express')  //initializes express into a constant
+const express = require('express') //initializes express into a constant
 const app = express() //initializes express app in a constant
 
 const cors = require('cors')
@@ -14,9 +14,11 @@ const logger = morgan(function (tokens, req, res) {
         tokens.method(req, res),
         tokens.url(req, res),
         tokens.status(req, res),
-        tokens.res(req, res, 'content-length'), '-',
-        tokens['response-time'](req, res), 'ms',
-        JSON.stringify(req.body)
+        tokens.res(req, res, 'content-length'),
+        '-',
+        tokens['response-time'](req, res),
+        'ms',
+        JSON.stringify(req.body),
     ].join(' ')
 })
 const errorHandler = (error, request, response, next) => {
@@ -33,14 +35,10 @@ app.use(logger)
 
 const PORT = process.env.PORT || 3001
 
-
-
-
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
 //Set up the express server app to listen on port 3001
-
 
 // let persons = [
 //     {
@@ -74,7 +72,9 @@ app.get('/', (request, response) => {
 app.get('/info', (request, response, next) => {
     Person.countDocuments({})
         .then((count) => {
-            response.send(`<div>Phonebook has info for ${count} people<div><div>${new Date}<div>`)
+            response.send(
+                `<div>Phonebook has info for ${count} people<div><div>${new Date()}<div>`
+            )
         })
         .catch((error) => {
             console.log(error)
@@ -84,7 +84,7 @@ app.get('/info', (request, response, next) => {
 //set up a get route for info page
 
 app.get('/api/persons', (request, response) => {
-    Person.find({}).then(persons => {
+    Person.find({}).then((persons) => {
         response.json(persons)
     })
 })
@@ -93,24 +93,24 @@ app.get('/api/persons', (request, response) => {
 
 app.get('/api/persons/:id', (request, response, next) => {
     Person.findById(request.params.id)
-        .then(person => {
+        .then((person) => {
             if (person) {
                 response.json(person)
             } else {
                 response.status(404).end()
             }
         })
-        .catch(error => next(error))
+        .catch((error) => next(error))
 })
 
 //set up a get route using params entered into the URL for a person with specific ID
 
 app.delete('/api/persons/:id', (request, response, next) => {
     Person.findByIdAndRemove(request.params.id)
-        .then(result => {
+        .then((result) => {
             response.status(204).end()
         })
-        .catch(error => next(error))
+        .catch((error) => next(error))
 })
 
 //set up delete route using params entered into the URL for specific person from phonebook with specific ID
@@ -119,20 +119,21 @@ app.post('/api/persons/', (request, response, next) => {
     const body = request.body
     if (!body || !body.number || !body.name) {
         return response.status(400).json({
-            error: 'Number or name is missing from request.'
+            error: 'Number or name is missing from request.',
         })
-    }
-
-    else {
-        const person = new Person(
-            {
-                name: body.name,
-                number: body.number
-            }
-        )
-        person.save().then(savedPerson => {
-            response.json(savedPerson)
-        }).catch(error => { next(error) })
+    } else {
+        const person = new Person({
+            name: body.name,
+            number: body.number,
+        })
+        person
+            .save()
+            .then((savedPerson) => {
+                response.json(savedPerson)
+            })
+            .catch((error) => {
+                next(error)
+            })
     }
 })
 //add person object to phonebook
@@ -141,14 +142,14 @@ app.put('/api/persons/:id', (request, response, next) => {
     const body = request.body
     const person = {
         name: body.name,
-        number: body.number
+        number: body.number,
     }
 
     Person.findByIdAndUpdate(request.params.id, person, { new: true })
-        .then(updatedPerson => {
+        .then((updatedPerson) => {
             response.json(updatedPerson)
         })
-        .catch(error => next(error))
+        .catch((error) => next(error))
 })
 
 app.use(errorHandler)

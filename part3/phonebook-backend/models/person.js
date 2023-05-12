@@ -19,8 +19,8 @@ mongoose.connect(url)
 
 
 function validatePhoneNumber(number) {
-    const phoneNumberRegex = /^(\d{2,3})-(\d+)$/;
-    return phoneNumberRegex.test(number);
+    const phoneNumberRegex = /^(\d{2,3})-(\d+)$/
+    return phoneNumberRegex.test(number)
 }
 
 const personSchema = new mongoose.Schema({
@@ -34,7 +34,7 @@ const personSchema = new mongoose.Schema({
         validate: [validatePhoneNumber, 'Invalid phone number'],
         required: true,
     },
-});
+})
 
 personSchema.set('toJSON', {
     transform: (document, returnedObject) => {
