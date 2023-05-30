@@ -16,13 +16,6 @@ const totalLikes = (blogPosts) => {
     }
 }
 
-// const favoriteBlog = (blogPosts) => {
-//     const likesArray = blogPosts.map(blog => blog.likes)
-//     const highestLikes = Math.max(...likesArray)
-//     const highestLikesIndex = likesArray.indexOf(highestLikes)
-//     return blogPosts[highestLikesIndex]
-// }
-
 const favoriteBlog = (blogPosts) => {
     return blogPosts.reduce((maxLikesBlog, currentBlog) => {
         return currentBlog.likes > maxLikesBlog.likes ? currentBlog : maxLikesBlog
