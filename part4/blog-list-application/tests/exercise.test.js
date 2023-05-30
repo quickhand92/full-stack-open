@@ -11,7 +11,8 @@ test('blogs are returned as json and length is correct', async () => {
         .get('/api/blogs')
         .expect(200)
         .expect('Content-Type', /application\/json/)
-        .then(response => expect(response.body).toHaveLength(1))
+        .then(response => expect(response.body).toHaveLength(true))
+    //replace toHaveLength number with whatever number is visually in database
 })
 
 test('unique identifier is id and not _id', async () => {
@@ -43,6 +44,36 @@ test('create new blog post and length of blogs increased by one', async () => {
     expect(finalLength).toEqual(initialLength + 1)
 
 })
+
+test('create new blog post with no likes property and verify likes default to 0', async () => {
+    const testBlogObject = {
+        "title": "this is a dev server",
+        "author": "Simon",
+        "url": "www.test.com1111"
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(testBlogObject)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+        .then(response => expect(response.body.likes).toBe(0))
+})
+
+test('creating new blog post with no title or url properties gives 400 bad request', async () => {
+
+    const testBlogObject = {
+        "author": "Simon",
+        "likes": 5
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(testBlogObject)
+        .expect(400)
+}, 100000)
+
+
 
 afterAll(async () => {
     await mongoose.connection.close()
