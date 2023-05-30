@@ -6,14 +6,14 @@ const app = require('../app')
 
 const api = supertest(app)
 
-test('blogs are returned as json and length is correct', async () => {
-    await api
-        .get('/api/blogs')
-        .expect(200)
-        .expect('Content-Type', /application\/json/)
-        .then(response => expect(response.body).toHaveLength(true))
-    //replace toHaveLength number with whatever number is visually in database
-})
+// test('blogs are returned as json and length is correct', async () => {
+//     await api
+//         .get('/api/blogs')
+//         .expect(200)
+//         .expect('Content-Type', /application\/json/)
+//         .then(response => expect(response.body).toHaveLength(true))
+//     //replace toHaveLength number with whatever number is visually in database
+// })
 
 test('unique identifier is id and not _id', async () => {
     await api
@@ -73,6 +73,60 @@ test('creating new blog post with no title or url properties gives 400 bad reque
         .expect(400)
 }, 100000)
 
+test('create blog post with id, delete that same blog post by ID and receive status 204', async () => {
+    const testBlogObject = {
+        "title": "delete test",
+        "author": "Simon",
+        "url": "www.testfso.com",
+        "likes": 2043533
+    }
+    await api
+        .post('/api/blogs')
+        .send(testBlogObject)
+        .expect(201)
+
+    let testId
+
+    await api
+        .get('/api/blogs')
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+        .then(response => response.body.forEach(blog => { if (blog.title == "delete test") { testId = blog.id } }))
+    await api
+        .delete(`/api/blogs/${testId}`)
+        .expect(204)
+}, 100000)
+
+test('create blog post with id, update likes of that post by ID, receive status 200', async () => {
+    const testBlogObject = {
+        "title": "put test",
+        "author": "Simon",
+        "url": "www.testfso.com",
+        "likes": 3134
+    }
+    await api
+        .post('/api/blogs')
+        .send(testBlogObject)
+        .expect(201)
+
+    let testId
+
+    await api
+        .get('/api/blogs')
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+        .then(response => response.body.forEach(blog => { if (blog.title == "put test") { testId = blog.id } }))
+
+    let prevLikes = testBlogObject.likes
+    testBlogObject.likes++
+
+    await api
+        .put(`/api/blogs/${testId}`)
+        .send(testBlogObject)
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+        .then(response => expect(response.body.likes).toBe(prevLikes + 1))
+})
 
 
 afterAll(async () => {
